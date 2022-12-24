@@ -3,7 +3,7 @@ import Knot from './Knot';
 import Tile from './Tile';
 
 const TILE_SIZE = 20;
-const HEIGHT_ERR = 4;
+const HEIGHT_PADDING = 6;
 const ROPE_LENGTH = 20;
 const VALID_KEYS = [
   'w',
@@ -23,7 +23,7 @@ function App() {
   };
 
   const [height, setHeight] = useState(
-    evenDivide(window.innerHeight, TILE_SIZE) - HEIGHT_ERR
+    evenDivide(window.innerHeight, TILE_SIZE) - HEIGHT_PADDING
   );
   const [width, setWidth] = useState(evenDivide(window.innerWidth, TILE_SIZE));
   const [rope, setRope] = useState([] as Knot[]);
@@ -67,7 +67,14 @@ function App() {
               knotX += 1;
             }
 
-            console.log(knotX, knotY);
+            if (knotX < 0) {
+              knotX += width;
+            }
+
+            if (knotY < 0) {
+              knotY += height;
+            }
+
             return [...acc, new Knot(knotX % width, knotY % height)];
           } else {
             const lastKnot: Knot = acc[i - 1];
@@ -103,7 +110,7 @@ function App() {
   };
 
   const updateDimensions = () => {
-    setHeight(evenDivide(window.innerHeight, TILE_SIZE) - HEIGHT_ERR);
+    setHeight(evenDivide(window.innerHeight, TILE_SIZE) - HEIGHT_PADDING);
     setWidth(evenDivide(window.innerWidth, TILE_SIZE));
   };
   console.log(height, width);
@@ -129,13 +136,12 @@ function App() {
   };
 
   return (
-    <div
-      style={{
-        height: window.innerHeight,
-        width: window.innerWidth,
-      }}
-    >
-      {createGrid()}
+    <div id='app'>
+      <div>{createGrid()}</div>
+      <footer>
+        <p>Navigate using arrow keys or WASD</p>
+        <p>Inspired by Advent of Code 2022 Day 9</p>
+      </footer>
     </div>
   );
 }

@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/rope-physics/static/css/main.d7afb9d2.css",
+    "main.js": "/rope-physics/static/js/main.47fb99c4.js",
+    "index.html": "/rope-physics/index.html",
+    "main.d7afb9d2.css.map": "/rope-physics/static/css/main.d7afb9d2.css.map",
+    "main.47fb99c4.js.map": "/rope-physics/static/js/main.47fb99c4.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d7afb9d2.css",
+    "static/js/main.47fb99c4.js"
+  ]
+}

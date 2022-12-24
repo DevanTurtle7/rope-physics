@@ -5,12 +5,27 @@ import Tile from './Tile';
 const TILE_SIZE = 20;
 const HEIGHT_ERR = 4;
 const ROPE_LENGTH = 20;
+const VALID_KEYS = [
+  'w',
+  'a',
+  's',
+  'd',
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+];
 
 function App() {
-  const [height, setHeight] = useState(window.innerHeight);
-  const [width, setWidth] = useState(window.innerWidth);
-  const [mouseX, setMouseX] = useState(0);
-  const [mouseY, setMouseY] = useState(0);
+  const evenDivide = (number: number, divisor: number) => {
+    const remainder = number % divisor;
+    return (number - remainder) / divisor;
+  };
+
+  const [height, setHeight] = useState(
+    evenDivide(window.innerHeight, TILE_SIZE) - HEIGHT_ERR
+  );
+  const [width, setWidth] = useState(evenDivide(window.innerWidth, TILE_SIZE));
   const [rope, setRope] = useState([] as Knot[]);
 
   useEffect(() => {
@@ -19,11 +34,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-    window.addEventListener('mousemove', updateMousePosition);
-
-    return () => {
-      window.removeEventListener('mousemove', updateMousePosition);
-    };
+    window.addEventListener('keydown', keyPress);
+    return () => window.removeEventListener('keydown', keyPress);
   }, [rope]);
 
   useEffect(() => {
@@ -36,63 +48,51 @@ function App() {
     setRope(newRope);
   }, []);
 
-  const updateMousePosition = (event: MouseEvent) => {
-    const x = event.clientX;
-    const y = event.clientY;
-
-    if ((x !== mouseX || y !== mouseY) && rope.length > 0) {
-      const diffX = Math.abs(x - mouseX);
-      const diffY = Math.abs(y - mouseY);
-      setMouseX(evenDivide(x, TILE_SIZE));
-      setMouseY(evenDivide(y, TILE_SIZE));
-
+  const keyPress = ({key}: {key: string}) => {
+    console.log(key);
+    if (VALID_KEYS.some((validKey) => validKey === key)) {
       setRope(
         rope.reduce((acc: Knot[], knot, i) => {
-          const lastKnot: Knot = acc[i - 1];
-          const lastKnotPrev = rope[i - 1];
-
           if (i === 0) {
-            let knotX = evenDivide(x, TILE_SIZE);
-            let knotY = evenDivide(y, TILE_SIZE);
+            let knotX = rope[i].x;
+            let knotY = rope[i].y;
 
-            if (Math.max(diffX, diffY) === diffX) {
-              if (diffX !== 0) {
-                if (x > mouseX) {
-                  knotX += 1;
-                } else {
-                  knotX -= 1;
-                }
-              }
+            if (key === 'ArrowUp' || key === 'w') {
+              knotY -= 1;
+            } else if (key === 'ArrowDown' || key === 's') {
+              knotY += 1;
+            } else if (key === 'ArrowLeft' || key === 'a') {
+              knotX -= 1;
             } else {
-              if (diffY !== 0) {
-                if (y > mouseY) {
-                  knotY += 1;
-                } else {
-                  knotY -= 1;
-                }
-              }
+              knotX += 1;
             }
 
-            return [...acc, new Knot(knotX, knotY)];
-          } else if (knot.distance(lastKnot) > 1) {
-            if (lastKnot.diagFrom(lastKnotPrev)) {
-              if (lastKnot.onSameAxis(knot)) {
-                const xDiff = lastKnot.x - knot.x;
-                const yDiff = lastKnot.y - knot.y;
-                return [
-                  ...acc,
-                  new Knot(
-                    knot.x + evenDivide(xDiff, 2),
-                    knot.y + evenDivide(yDiff, 2)
-                  ),
-                ];
+            console.log(knotX, knotY);
+            return [...acc, new Knot(knotX % width, knotY % height)];
+          } else {
+            const lastKnot: Knot = acc[i - 1];
+            const lastKnotPrev = rope[i - 1];
+
+            if (knot.distance(lastKnot) > 1) {
+              if (lastKnot.diagFrom(lastKnotPrev)) {
+                if (lastKnot.onSameAxis(knot)) {
+                  const xDiff = lastKnot.x - knot.x;
+                  const yDiff = lastKnot.y - knot.y;
+                  return [
+                    ...acc,
+                    new Knot(
+                      knot.x + evenDivide(xDiff, 2),
+                      knot.y + evenDivide(yDiff, 2)
+                    ),
+                  ];
+                } else {
+                  const xDiff = lastKnot.x - lastKnotPrev.x;
+                  const yDiff = lastKnot.y - lastKnotPrev.y;
+                  return [...acc, new Knot(knot.x + xDiff, knot.y + yDiff)];
+                }
               } else {
-                const xDiff = lastKnot.x - lastKnotPrev.x;
-                const yDiff = lastKnot.y - lastKnotPrev.y;
-                return [...acc, new Knot(knot.x + xDiff, knot.y + yDiff)];
+                return [...acc, new Knot(lastKnotPrev.x, lastKnotPrev.y)];
               }
-            } else {
-              return [...acc, new Knot(lastKnotPrev.x, lastKnotPrev.y)];
             }
           }
 
@@ -103,22 +103,18 @@ function App() {
   };
 
   const updateDimensions = () => {
-    setHeight(window.innerHeight);
-    setWidth(window.innerWidth);
+    setHeight(evenDivide(window.innerHeight, TILE_SIZE) - HEIGHT_ERR);
+    setWidth(evenDivide(window.innerWidth, TILE_SIZE));
   };
-
-  const evenDivide = (number: number, divisor: number) => {
-    const remainder = number % divisor;
-    return (number - remainder) / divisor;
-  };
+  console.log(height, width);
 
   const createGrid = () => {
     const grid = [];
 
-    for (let y = 0; y < evenDivide(height, TILE_SIZE) - HEIGHT_ERR; y++) {
+    for (let y = 0; y < height; y++) {
       const tiles = [];
 
-      for (let x = 0; x < evenDivide(width, TILE_SIZE); x++) {
+      for (let x = 0; x < width; x++) {
         tiles.push(<Tile x={x} y={y} rope={rope} key={y + ' ' + x} />);
       }
 
@@ -135,8 +131,8 @@ function App() {
   return (
     <div
       style={{
-        height,
-        width,
+        height: window.innerHeight,
+        width: window.innerWidth,
       }}
     >
       {createGrid()}

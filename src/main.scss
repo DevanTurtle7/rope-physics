@@ -1,0 +1,36 @@
+$tile-size: 20px;
+$primary-color: rgb(42, 42, 42);
+$secondary-color: rgb(19, 19, 19);
+
+.tile {
+  width: $tile-size;
+  height: $tile-size;
+  background-color: $primary-color;
+
+  border-top: none;
+  border-left: none;
+  box-sizing: border-box;
+  width: $tile-size;
+  height: $tile-size;
+  float: left;
+}
+
+.row {
+  display: flex;
+  flex-flow: row;
+
+  border-right: none;
+  border-bottom: none;
+  overflow: hidden;
+}
+
+.tile,
+.row {
+  border: 1px solid $secondary-color;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: $secondary-color;
+}

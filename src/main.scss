@@ -1,11 +1,11 @@
 $tile-size: 20px;
 $primary-color: rgb(42, 42, 42);
 $secondary-color: rgb(19, 19, 19);
+$active-color: rgb(224, 210, 21);
 
 .tile {
   width: $tile-size;
   height: $tile-size;
-  background-color: $primary-color;
 
   border-top: none;
   border-left: none;
@@ -13,6 +13,13 @@ $secondary-color: rgb(19, 19, 19);
   width: $tile-size;
   height: $tile-size;
   float: left;
+
+  &-inactive {
+    background-color: $primary-color;
+  }
+  &-active {
+    background-color: $active-color;
+  }
 }
 
 .row {
